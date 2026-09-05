@@ -1,0 +1,23 @@
+node_modules
+.next
+out
+build
+.env*.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# Reference material dropped into the project root, not part of the frontend build.
+# `Controllers/` is the existing Laravel backend, kept only to document the schema.
+# `assets/` is the live image store; the four folders the site actually uses are
+# copied into public/assets by hand (see README).
+/Controllers/
+/assets/
+# `uploads/` is the shared media library (brand logos + the orange line-icon
+# set). The image files the site uses are copied into public/uploads.
+/uploads/
+
+# ~305 MB of real images. Serve them from NEXT_PUBLIC_ASSET_BASE_URL in
+# production instead of committing them; remove these lines to keep them in git.
+/public/assets/
+/public/uploads/
