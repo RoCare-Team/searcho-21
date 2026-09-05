@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+
 /**
  * Brand card linking to that brand's listings.
  *
