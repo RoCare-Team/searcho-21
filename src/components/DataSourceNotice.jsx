@@ -23,13 +23,23 @@ export default async function DataSourceNotice() {
             <code className={code}>DB_PASSWORD</code> and <code className={code}>DB_DATABASE</code>{" "}
             in <code className={code}>.env.local</code> to load cities, categories and listings.
           </>
+        ) : status === "rejected" ? (
+          <>
+            <span className="font-medium">Database refused the login.</span> The server answered, so
+            it is reachable — the credentials in <code className={code}>.env.local</code> were
+            turned away. Check <code className={code}>DB_USERNAME</code> /{" "}
+            <code className={code}>DB_PASSWORD</code> and <code className={code}>DB_DATABASE</code>,
+            and that the user is granted access from this machine&rsquo;s public IP — hosting panels
+            allow remote MySQL per-IP, and a laptop is rarely on that list.
+          </>
         ) : (
           <>
             <span className="font-medium">Database unreachable.</span> The credentials in{" "}
-            <code className={code}>.env.local</code> are set, but the server refused the connection
-            — check that MySQL is reachable from this machine (a{" "}
-            <code className={code}>127.0.0.1</code> host only works when the app runs on the same
-            server, otherwise use an SSH tunnel or a remote-accessible host).
+            <code className={code}>.env.local</code> are set, but the server never answered — check
+            that <code className={code}>DB_HOST</code> and <code className={code}>DB_PORT</code> are
+            right and that the port is open from here. If MySQL only listens on the hosting server,
+            open an SSH tunnel or point <code className={code}>DB_HOST</code> at a remote-accessible
+            address.
           </>
         )}
       </div>
