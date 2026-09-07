@@ -17,7 +17,7 @@ next-env.d.ts
 # set). The image files the site uses are copied into public/uploads.
 /uploads/
 
-# ~305 MB of real images. Serve them from NEXT_PUBLIC_ASSET_BASE_URL in
-# production instead of committing them; remove these lines to keep them in git.
-/public/assets/
-/public/uploads/
+# public/assets and public/uploads are committed: the deployment needs the
+# images and NEXT_PUBLIC_ASSET_BASE_URL is not set. They are ~312 MB, so a clone
+# carries that too — point the env var at https://www.searcho21.com and ignore
+# them again if the repo ever needs to be small.

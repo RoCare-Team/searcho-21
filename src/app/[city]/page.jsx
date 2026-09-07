@@ -16,7 +16,7 @@ import TopListings from "@/components/TopListings";
 import Section, { ChipLink } from "@/components/Section";
 import CTA from "@/components/CTA";
 import JsonLd from "@/components/JsonLd";
-import { getBusinesses, getCategories, getCities, getCity } from "@/lib/api";
+import { getBusinesses, getCategories, getCity } from "@/lib/api";
 import { buildCityIndex, buildServiceIndex, popularCityIndex } from "@/lib/search-index";
 import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
 import { titleCaseSlug } from "@/lib/format";
@@ -29,10 +29,6 @@ const WHY_SEARCHO21 = [
   "Share your requirement once and compare replies",
 ];
 
-export async function generateStaticParams() {
-  const cities = await getCities();
-  return cities.filter((c) => c.popular).map((c) => ({ city: c.slug }));
-}
 export async function generateMetadata({ params }) {
   const { city: citySlug } = await params;
   const city = await getCity(citySlug);
