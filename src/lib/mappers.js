@@ -17,6 +17,16 @@ import { stripHtml } from "@/lib/format";
  */
 const ASSET_BASE = (process.env.NEXT_PUBLIC_ASSET_BASE_URL ?? "").replace(/\/$/, "");
 /**
+ * Base for the `uploads/` root, which is not always where `assets/` is.
+ *
+ * www.searcho21.com serves `assets/` but has no `uploads/` at its web root, so a
+ * single base cannot cover both roots. Unset falls back to ASSET_BASE, which
+ * leaves a one-origin deployment behaving exactly as before; set it empty to
+ * keep serving the media library from `public/uploads` while `assets/` comes
+ * from the live origin.
+ */
+const UPLOADS_BASE = (process.env.NEXT_PUBLIC_UPLOADS_BASE_URL ?? ASSET_BASE).replace(/\/$/, "");
+/**
  * Image folders, and which storage root each one lives under.
  *
  * `assets/` is written by the Laravel app — VendorController moves vendor
@@ -51,12 +61,33 @@ const ASSET_ROOTS = {
   slides_image: "uploads",
   home_pages: "uploads",
 };
+/**
+ * Folders the live server keeps nested under `assets/img/`.
+ *
+ * The local copy of the media library flattens those three to `assets/img_<x>`,
+ * so the folder key and the live path disagree — the same split `homeServiceImage`
+ * handles in api.js. Serving from an origin therefore has to un-flatten the name
+ * again, or every city and category photo requests a path the server does not
+ * have and Laravel answers with its catch-all HTML page instead of an image.
+ */
+const NESTED_IMG_FOLDERS = {
+  img_category: "img/category",
+  img_city: "img/city",
+  img_hero: "img/bg",
+};
+
 /** Resolves a stored filename to a public URL. Returns null when unset. */
 export function assetUrl(folder, filename) {
   if (!filename) return null;
   // Already an absolute URL — pass it through untouched.
   if (/^https?:\/\//i.test(filename)) return filename;
-  return `${ASSET_BASE}/${ASSET_ROOTS[folder]}/${folder}/${encodeURIComponent(filename)}`;
+  const root = ASSET_ROOTS[folder];
+  // An unmapped folder used to build "/undefined/<folder>/<file>", which 404s as
+  // an image rather than as the typo it is. No root means no URL.
+  if (!root) return null;
+  const base = root === "uploads" ? UPLOADS_BASE : ASSET_BASE;
+  const dir = (base && NESTED_IMG_FOLDERS[folder]) || folder;
+  return `${base}/${root}/${dir}/${encodeURIComponent(filename)}`;
 }
 /**
  * Masks a mobile number the way the existing site does: the first few digits

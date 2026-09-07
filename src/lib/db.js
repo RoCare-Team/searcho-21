@@ -40,16 +40,22 @@ function getPool() {
   }
   return globalThis.__searcho21Pool;
 }
-/** Failures that mean the server is unreachable, not that the SQL was wrong. */
+/** Failures that mean the server never answered, not that the SQL was wrong. */
 const CONNECTION_ERRORS = new Set([
   "ECONNREFUSED",
   "ETIMEDOUT",
   "ENOTFOUND",
   "EHOSTUNREACH",
-  "ER_ACCESS_DENIED_ERROR",
-  "ER_BAD_DB_ERROR",
   "PROTOCOL_CONNECTION_LOST",
 ]);
+
+/**
+ * Failures where the server answered and turned us away: wrong credentials, no
+ * grant for this client's IP, or a database that is not there. Handled like an
+ * outage — every query returns null — but they call for the opposite advice, so
+ * they are kept apart from CONNECTION_ERRORS rather than folded into it.
+ */
+const REJECTED_ERRORS = new Set(["ER_ACCESS_DENIED_ERROR", "ER_BAD_DB_ERROR"]);
 
 /** How long to stop dialling after the server refuses a connection. */
 const BACKOFF_MS = 10_000;
@@ -59,20 +65,31 @@ const BACKOFF_MS = 10_000;
 // database turned into sixteen identical errors in the dev overlay.
 let downUntil = 0;
 let reportedDown = false;
+// Which of the two the last failure was, so the UI can say which one it is
+// looking at long after the warning scrolled out of the terminal.
+let lastFailure = null;
 
-function noteConnectionFailure(error) {
+function noteUnavailable(error) {
   downUntil = Date.now() + BACKOFF_MS;
+  lastFailure = REJECTED_ERRORS.has(error.code) ? "rejected" : "unreachable";
   if (reportedDown) return;
 
   reportedDown = true;
+  // A rejected login and an unanswered dial look the same from here — empty
+  // pages — but the fix is nowhere near the same, so say which one happened.
+  const advice = REJECTED_ERRORS.has(error.code)
+    ? `${DB_HOST}:${DB_PORT ?? 3306} answered and refused the login, so the host is ` +
+      `reachable. Check the credentials, that ${DB_NAME} exists, and that ${DB_USER} is ` +
+      `granted from this machine's public IP — remote MySQL access is allowed per-IP on ` +
+      `most hosting panels, and a laptop's IP usually is not on that list.`
+    : `${DB_HOST}:${DB_PORT ?? 3306} did not answer. Pages render empty until it does. ` +
+      `If MySQL only listens on the hosting server, open an SSH tunnel or point the host ` +
+      `at a remote-accessible address.`;
   // warn, not error: this condition is handled — callers render empty states and
   // DataSourceNotice explains it in the UI. Logging it as an error made Next's
   // dev overlay pop up over the page for a problem the page already reports.
   console.warn(
-    `[searcho21] cannot reach the database (${error.code ?? "error"}: ${error.message}). ` +
-      `Pages will render empty until it is reachable. ` +
-      `A ${DB_HOST} host only works when this app runs on the same server as MySQL — ` +
-      `otherwise open an SSH tunnel or point DB_HOST at a remote-accessible host.`,
+    `[searcho21] database unavailable (${error.code ?? "error"}: ${error.message}). ${advice}`,
   );
 }
 
@@ -92,10 +109,11 @@ export async function query(sql, params = []) {
     // Recovered — log the next outage again.
     reportedDown = false;
     downUntil = 0;
+    lastFailure = null;
     return rows;
   } catch (error) {
-    if (CONNECTION_ERRORS.has(error.code)) {
-      noteConnectionFailure(error);
+    if (CONNECTION_ERRORS.has(error.code) || REJECTED_ERRORS.has(error.code)) {
+      noteUnavailable(error);
     } else {
       console.error("[searcho21] query failed:", error.message, "\n", sql);
     }
@@ -111,14 +129,17 @@ export async function queryOne(sql, params = []) {
 /**
  * Whether the database is configured, and whether it actually answers.
  *
- * "configured but unreachable" is its own state: the credentials are present so
- * nothing warns about missing env, yet every query returns empty. Naming it
- * separately is what makes an empty site explainable.
+ * "configured but not answering" is its own state: the credentials are present
+ * so nothing warns about missing env, yet every query returns empty. Naming it
+ * is what makes an empty site explainable — and "rejected" is split from
+ * "unreachable" because one is fixed in the hosting panel and the other in
+ * .env.local, and guessing wrong sends you looking in the wrong place.
  *
- * @returns {Promise<"not-configured" | "connected" | "unreachable">}
+ * @returns {Promise<"not-configured" | "connected" | "rejected" | "unreachable">}
  */
 export async function getDataSourceStatus() {
   if (!isDbConfigured()) return "not-configured";
   const rows = await query("SELECT 1 AS ok");
-  return rows ? "connected" : "unreachable";
+  if (rows) return "connected";
+  return lastFailure === "rejected" ? "rejected" : "unreachable";
 }
