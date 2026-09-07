@@ -32,7 +32,7 @@ export default function CityCard({ name, slug, photo }) {
         )}
       </span>
 
-      <span className="text-center text-[12.5px] leading-tight text-ink-700 transition-colors group-hover:text-brand-600">
+      <span className="text-center text-[15px] leading-tight text-ink-700 transition-colors group-hover:text-brand-600">
         {name}
       </span>
     </Link>

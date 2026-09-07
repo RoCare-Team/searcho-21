@@ -42,6 +42,7 @@ export default async function SubCategoryPage({ params, searchParams }) {
     categorySlug: subCategory.slug,
     verifiedOnly: query.verified === "1",
     locality: query.locality,
+    serviceType: query.type,
     sort: query.sort ?? undefined,
     page,
     perPage: 10,
@@ -64,7 +65,7 @@ export default async function SubCategoryPage({ params, searchParams }) {
             {subCategory.name} services in {city.name}
           </h1>
           {subCategory.description && (
-            <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-500">
+            <p className="mt-2 max-w-2xl text-[17px] leading-relaxed text-ink-500">
               {subCategory.description} All listings show the provider&apos;s locality and service
               areas across {city.name}.
             </p>

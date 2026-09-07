@@ -11,11 +11,11 @@ export default async function DataSourceNotice() {
   const status = await getDataSourceStatus();
   if (status === "connected") return null;
 
-  const code = "font-mono text-[12px]";
+  const code = "font-mono text-[14.5px]";
 
   return (
     <div className="border-b border-brand-200 bg-brand-50">
-      <div className="shell py-2.5 text-[13px] text-brand-700">
+      <div className="shell py-2.5 text-[15.5px] text-brand-700">
         {status === "not-configured" ? (
           <>
             <span className="font-medium">Database not connected.</span> Set{" "}

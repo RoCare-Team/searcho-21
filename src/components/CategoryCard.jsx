@@ -9,9 +9,9 @@ export default function CategoryCard({ name, href, description, count, slug }) {
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-medium text-navy-900">{name}</span>
+        <span className="block text-[17px] font-medium text-navy-900">{name}</span>
         {description && (
-          <span className="line-clamp-2-safe mt-0.5 block text-[13px] leading-snug text-ink-500">
+          <span className="line-clamp-2-safe mt-0.5 block text-[15.5px] leading-snug text-ink-500">
             {description}
           </span>
         )}

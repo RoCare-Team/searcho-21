@@ -2,17 +2,17 @@
 
 /* ------------------------------------------------------------------
    Searcho21 design tokens
-   Restrained palette: orange for action, navy for structure,
-   off-white ground, white cards, charcoal text.
+   Restrained palette: rose-red for action, navy for structure,
+   a faintly warm off-white ground, white cards, charcoal text.
    ------------------------------------------------------------------ */
 @theme {
-  --color-brand-50: #fff7ed;
-  --color-brand-100: #ffedd5;
-  --color-brand-200: #fed7aa;
-  --color-brand-300: #fdba74;
-  --color-brand-500: #f97316;
-  --color-brand-600: #ea580c;
-  --color-brand-700: #c2410c;
+  --color-brand-50: #fff1f2;
+  --color-brand-100: #ffe4e6;
+  --color-brand-200: #fecdd3;
+  --color-brand-300: #fda4af;
+  --color-brand-500: #e63946;
+  --color-brand-600: #cf2233;
+  --color-brand-700: #a91b29;
 
   --color-navy-50: #f4f6f9;
   --color-navy-100: #e5eaf1;
@@ -26,9 +26,9 @@
   --color-ink-500: #6b7280;
   --color-ink-400: #9aa1ab;
 
-  --color-line: #e6e8ec;
-  --color-line-strong: #d3d7de;
-  --color-canvas: #f7f8fa;
+  --color-line: #ebe6e7;
+  --color-line-strong: #dcd4d5;
+  --color-canvas: #fdf7f7;
 
   --color-success-50: #ecfdf3;
   --color-success-200: #b7e4c7;
@@ -39,6 +39,29 @@
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Body text a notch larger than Tailwind's defaults.
+     Overriding the type scale rather than the root font size keeps padding,
+     gaps and radii where they are — in v4 those are rem-based too, so bumping
+     :root would have inflated the whole layout instead of just the reading. */
+  --text-xs: 0.875rem; /* 14px, Tailwind's default is 12 */
+  --text-xs--line-height: 1.375rem;
+  --text-sm: 1rem; /* 16px, default 14 */
+  --text-sm--line-height: 1.5rem;
+  --text-base: 1.125rem; /* 18px, default 16 */
+  --text-base--line-height: 1.75rem;
+  --text-lg: 1.25rem; /* 20px, default 18 */
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.375rem; /* 22px, default 20 */
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.625rem; /* 26px, default 24 */
+  --text-2xl--line-height: 2.125rem;
+  --text-3xl: 2rem; /* 32px, default 30 */
+  --text-3xl--line-height: 2.375rem;
+
+  /* The listing pages' third column needs roughly this much room before it can
+     appear without squeezing the results column below a comfortable width. */
+  --breakpoint-wide: 87.5rem; /* 1400px */
 
   --radius-card: 0.625rem;
 
@@ -100,21 +123,28 @@
 }
 
 @layer components {
-  /* Page shell — one shared max width across every template. */
+  /* Page shell — one shared width across every template.
+     A single width expression rather than a max-width plus padding: the old
+     rule capped at 86rem and then subtracted a 4rem gutter, so a 1920px screen
+     showed 1376px of content between 265px margins, and the three-column
+     listing grid squeezed its middle column to 640px. */
   .shell {
-    width: 100%;
-    max-width: 88rem;
+    width: min(1440px, calc(100% - 2.5rem)); /* 20px each side */
     margin-inline: auto;
-    padding-inline: 1rem;
   }
   @media (min-width: 640px) {
     .shell {
-      padding-inline: 1.5rem;
+      width: min(1440px, calc(100% - 4rem)); /* 32px */
     }
   }
   @media (min-width: 1024px) {
     .shell {
-      padding-inline: 1.5rem;
+      width: min(1440px, calc(100% - 6rem)); /* 48px */
+    }
+  }
+  @media (min-width: 1280px) {
+    .shell {
+      width: min(1440px, calc(100% - 8rem)); /* 64px */
     }
   }
 
@@ -142,6 +172,37 @@
   }
   .prose-seo p:last-child {
     margin-bottom: 0;
+  }
+
+  /* Tables inside the stored content_text (admin-authored HTML). */
+  .prose-seo .s21-table-scroll,
+  .prose-seo .table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+  }
+  .prose-seo table {
+    max-width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  .prose-seo th,
+  .prose-seo td {
+    border: 1px solid var(--color-line);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose-seo th {
+    background: var(--color-canvas);
+    font-weight: 600;
+    color: var(--color-navy-900);
+  }
+  .prose-seo img {
+    max-width: 100%;
+    height: auto;
   }
 
   .no-scrollbar {

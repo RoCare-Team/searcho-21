@@ -68,3 +68,23 @@ export function stripHtml(value) {
 
   return text || undefined;
 }
+
+/**
+ * Wraps every <table> in the stored content_text with a scrolling container.
+ *
+ * The admin-authored HTML is inconsistent: some rows wrap their table in
+ * Bootstrap's `.table-responsive`, others emit a bare <table>. A bare one is
+ * wider than a phone and pushed the whole page sideways, so the surrounding
+ * paragraphs were cut off at the left edge. Wrapping here means the page does
+ * not depend on how a particular row happened to be authored.
+ *
+ * A table already inside `.table-responsive` simply ends up in two scroll
+ * boxes, which behaves the same as one.
+ */
+export function wrapTables(html) {
+  if (!html || !html.includes("<table")) return html;
+  return String(html).replace(
+    /<table[\s\S]*?<\/table>/gi,
+    (table) => `<div class="s21-table-scroll">${table}</div>`,
+  );
+}

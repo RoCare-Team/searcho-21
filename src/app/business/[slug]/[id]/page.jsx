@@ -8,6 +8,9 @@ import ProfileTabs from "@/components/ProfileTabs";
 import MobileActionBar from "@/components/MobileActionBar";
 import BusinessCard from "@/components/BusinessCard";
 import Section from "@/components/Section";
+import QuoteForm from "@/components/QuoteForm";
+import ContactCard from "@/components/ContactCard";
+import OpeningHours from "@/components/OpeningHours";
 import JsonLd from "@/components/JsonLd";
 import { getBusiness, getRelatedBusinesses } from "@/lib/api";
 import { breadcrumbJsonLd, buildMetadata, localBusinessJsonLd } from "@/lib/seo";
@@ -77,7 +80,7 @@ export default async function BusinessProfilePage({ params }) {
       ) : (
         <div className="card px-5 py-10 text-center">
           <p className="text-sm font-medium text-navy-900">No services listed yet</p>
-          <p className="mt-1 text-[13px] text-ink-500">
+          <p className="mt-1 text-[15.5px] text-ink-500">
             This listing has not added the services it offers.
           </p>
         </div>
@@ -98,24 +101,60 @@ export default async function BusinessProfilePage({ params }) {
           <BusinessProfileHeader business={business} />
         </div>
 
-        <div className="mt-8">
-          <ProfileTabs tabs={tabs} />
-        </div>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="min-w-0">
+            <ProfileTabs tabs={tabs} />
 
-        {related.length > 0 && (
-          <Section
-            title="Related businesses"
-            description={
-              business.address.city ? `Other providers in ${business.address.city}.` : undefined
-            }
-          >
-            <div className="space-y-3">
-              {related.map((item) => (
-                <BusinessCard key={item.id} business={item} />
-              ))}
+            <div className="lg:hidden">
+              <ContactCard business={business} className="mt-6" />
+              {business.openingHours?.length > 0 && (
+                <OpeningHours hours={business.openingHours} className="mt-4" />
+              )}
             </div>
-          </Section>
-        )}
+
+            {related.length > 0 && (
+              <Section
+                title="Related businesses"
+                description={
+                  business.address.city ? `Other providers in ${business.address.city}.` : undefined
+                }
+              >
+                <div className="space-y-3">
+                  {related.map((item) => (
+                    <BusinessCard key={item.id} business={item} />
+                  ))}
+                </div>
+              </Section>
+            )}
+          </div>
+
+          {/* Desktop only: on a phone the same actions live in the sticky
+              MobileActionBar at the bottom of the screen. */}
+          <aside className="hidden self-start lg:sticky lg:top-[90px] lg:block">
+            <div className="card p-5">
+              <h2 className="text-[17px] font-semibold text-navy-900">
+                Get a quote from {business.name}
+              </h2>
+              <p className="mt-1 text-[14px] text-ink-500">
+                Tell them what you need and they will get back to you.
+              </p>
+              <div className="mt-4">
+                <QuoteForm
+                  compact
+                  context={`Enquiry for ${business.name}${
+                    business.address.city ? `, ${business.address.city}` : ""
+                  }.`}
+                />
+              </div>
+            </div>
+
+            <ContactCard business={business} />
+
+            {business.openingHours?.length > 0 && (
+              <OpeningHours hours={business.openingHours} className="mt-4" />
+            )}
+          </aside>
+        </div>
 
         {/* Full address in plain text, mirroring the existing profile page. */}
         <p className="sr-only">{fullAddress(business)}</p>

@@ -7,8 +7,10 @@ import {
   getCity,
   getPageContent,
   getServiceType,
+  getServiceTypeCounts,
 } from "@/lib/api";
 import { buildServicePageContent } from "@/lib/service-content";
+import { buildCityIndex, buildServiceIndex, popularCityIndex } from "@/lib/search-index";
 import { buildMetadata } from "@/lib/seo";
 async function load(params) {
   const { city: citySlug, category, subcategory, servicetype, brand: brandSlug } = await params;
@@ -56,6 +58,7 @@ export default async function BrandServicePage({ params, searchParams }) {
       categorySlug: subCategory.slug,
       verifiedOnly: query.verified === "1",
       locality: query.locality,
+      serviceType: query.type,
       sort: query.sort ?? undefined,
       page: Number(query.page) || 1,
       perPage: 10,
@@ -75,6 +78,11 @@ export default async function BrandServicePage({ params, searchParams }) {
     serviceType,
     brand,
     mapping,
+  });
+  const serviceTypeCounts = await getServiceTypeCounts({
+    citySlug: city.slug,
+    categorySlug: category.slug,
+    subCategorySlug: subCategory.slug,
   });
   const crumbs = [
     { name: "Home", href: "/" },
@@ -101,6 +109,10 @@ export default async function BrandServicePage({ params, searchParams }) {
       searchParams={query}
       // Sibling brands, so the user can switch brand without going up a level.
       relatedBrands={brands.filter((b) => b.name !== brand.name)}
+      serviceTypeCounts={serviceTypeCounts}
+      searchServices={await buildServiceIndex()}
+      searchCities={await buildCityIndex()}
+      searchPopularCities={await popularCityIndex()}
     />
   );
 }

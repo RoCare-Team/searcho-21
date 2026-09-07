@@ -1,44 +1,61 @@
 import CategoryIcon from "@/components/CategoryIcon";
 import { CityLink } from "@/components/CitySelection";
+
 /**
- * Compact category tile: artwork in a rounded square, label underneath.
+ * Category card: an icon chip, the name, and how many businesses are listed
+ * under it.
  *
- * Used for the dense category grids on the homepage and city pages, where the
- * point is to scan many services at once rather than read a description of each.
- * The wider `CategoryCard` is still used where a description earns its space.
+ * No photograph — the service artwork is used in the hero collage instead, and
+ * repeating it here turned a scannable grid into two rows of pictures.
+ *
+ * The count is the real number of listings mapped to this category, so it is
+ * shown only where there is one: most categories on this site have a handful of
+ * listings, and printing "0 businesses" under nine of twelve cards would read
+ * worse than printing nothing.
  */
-export default function CategoryTile({ name, path, slug }) {
+export default function CategoryTile({ name, path, slug, listings }) {
   return (
-    <CityLink path={path} className="group flex w-full flex-col items-center gap-2 text-center">
-      <span className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-xl border border-line-strong bg-white transition-all duration-150 group-hover:border-brand-300 group-hover:shadow-raised sm:h-[5.5rem] sm:w-[5.5rem] lg:h-[6.5rem] lg:w-[6.5rem]">
-        <CategoryIcon
-          slug={slug}
-          className="h-8 w-8 text-brand-500 sm:h-10 sm:w-10 lg:h-12 lg:w-12"
-        />
+    <CityLink
+      path={path}
+      className="card card-hover group flex h-full w-full items-center gap-3 px-4 py-3.5 text-left"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 transition-colors group-hover:bg-brand-100">
+        <CategoryIcon slug={slug} className="h-5 w-5 text-brand-500" />
       </span>
 
-      <span className="text-[13px] leading-tight text-ink-700 transition-colors group-hover:text-brand-600">
-        {name}
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate text-[16px] font-semibold leading-tight text-navy-900 transition-colors group-hover:text-brand-600">
+          {name}
+        </span>
+        {listings > 0 ? (
+          <span className="mt-0.5 text-[14.5px] text-ink-500">
+            {listings.toLocaleString("en-IN")} {listings === 1 ? "business" : "businesses"}
+          </span>
+        ) : null}
       </span>
     </CityLink>
   );
 }
-/** Trailing "see everything" tile, closing the grid. */
+
+/** Trailing "see everything" card, closing the grid. */
 export function AllCategoriesTile({ path, label = "All Categories" }) {
   return (
-    <CityLink path={path} className="group flex w-full flex-col items-center gap-2 text-center">
-      <span className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-xl border border-navy-900 bg-navy-900 transition-colors group-hover:bg-navy-800 sm:h-[5.5rem] sm:w-[5.5rem] lg:h-[6.5rem] lg:w-[6.5rem]">
-        <span className="flex flex-col gap-[5px]" aria-hidden>
+    <CityLink
+      path={path}
+      className="card card-hover group flex h-full w-full items-center gap-3 px-4 py-3.5 text-left"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy-900 transition-colors group-hover:bg-navy-800">
+        <span className="flex flex-col gap-0.75" aria-hidden>
           {[0, 1, 2].map((i) => (
-            <span key={i} className="flex gap-[5px]">
+            <span key={i} className="flex gap-0.75">
               {[0, 1, 2].map((j) => (
-                <span key={j} className="h-2 w-2 rounded-[3px] bg-white/85 lg:h-2.5 lg:w-2.5" />
+                <span key={j} className="h-1 w-1 rounded-[1px] bg-white/85" />
               ))}
             </span>
           ))}
         </span>
       </span>
-      <span className="text-[13px] leading-tight text-ink-700 transition-colors group-hover:text-brand-600">
+      <span className="text-[16px] font-semibold leading-tight text-navy-900 transition-colors group-hover:text-brand-600">
         {label}
       </span>
     </CityLink>

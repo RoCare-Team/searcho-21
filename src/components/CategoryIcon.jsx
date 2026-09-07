@@ -10,11 +10,14 @@ import {
   HeartPulse,
   House,
   Laptop,
+  Plug,
   Scissors,
   Smartphone,
   Sparkles,
   Stethoscope,
+  Store,
   Wind,
+  Wrench,
 } from "lucide-react";
 
 /**
@@ -52,6 +55,15 @@ const ICONS = {
   salon: Scissors,
   "dental-clinic": Stethoscope,
   "ro-plant": Factory,
+
+  // Level-two services (category_level_two_tb.cat_level_two_url)
+  service: Wrench,
+  "repair-service": Wrench,
+  installation: Plug,
+  dealer: Store,
+  "ac-dealer": Store,
+  "ro-plant-service": Factory,
+  "ro-plant-manufacturers": Factory,
 };
 
 export default function CategoryIcon({ slug, className = "h-5 w-5" }) {

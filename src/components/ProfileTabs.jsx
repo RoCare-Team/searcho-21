@@ -21,7 +21,7 @@ export default function ProfileTabs({ tabs }) {
                 aria-selected={isActive}
                 aria-controls={`panel-${tab.id}`}
                 onClick={() => setActiveId(tab.id)}
-                className={`shrink-0 border-b-2 px-3.5 py-3 text-[13px] font-medium transition-colors ${
+                className={`shrink-0 border-b-2 px-3.5 py-3 text-[15.5px] font-medium transition-colors ${
                   isActive
                     ? "border-brand-500 text-navy-900"
                     : "border-transparent text-ink-500 hover:text-navy-900"

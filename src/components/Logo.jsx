@@ -10,7 +10,7 @@ export default function Logo({ tone = "dark" }) {
     <Link
       href="/"
       aria-label="Searcho21 home"
-      className="inline-flex shrink-0 items-baseline gap-px text-[19px] font-semibold tracking-tight"
+      className="inline-flex shrink-0 items-baseline gap-px text-[20px] font-semibold tracking-tight"
     >
       <span className={tone === "dark" ? "text-navy-900" : "text-white"}>Searcho</span>
       <span className="text-brand-500">21</span>

@@ -15,13 +15,13 @@ export default function EmptyListings({ filtered, subject, quoteContext, resetHr
       <div className="card flex flex-col items-center px-5 py-12 text-center">
         <SearchX className="h-7 w-7 text-ink-400" aria-hidden />
         <p className="mt-3 text-sm font-medium text-navy-900">No listings match these filters</p>
-        <p className="mt-1 max-w-sm text-[13px] text-ink-500">
+        <p className="mt-1 max-w-sm text-[15.5px] text-ink-500">
           Try removing a filter to see more providers.
         </p>
         {resetHref && (
           <Link
             href={resetHref}
-            className="mt-4 rounded-lg border border-line px-4 py-2 text-[13px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
+            className="mt-4 rounded-lg border border-line px-4 py-2 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
           >
             Clear filters
           </Link>
@@ -33,7 +33,7 @@ export default function EmptyListings({ filtered, subject, quoteContext, resetHr
     <div className="card flex flex-col items-center px-5 py-12 text-center">
       <SearchX className="h-7 w-7 text-ink-400" aria-hidden />
       <p className="mt-3 text-sm font-medium text-navy-900">No {subject} yet</p>
-      <p className="mt-1 max-w-md text-[13px] text-ink-500">
+      <p className="mt-1 max-w-md text-[15.5px] text-ink-500">
         We have not listed a provider here so far. Share your requirement and the Searcho21 team
         will find one for you.
       </p>
@@ -42,11 +42,11 @@ export default function EmptyListings({ filtered, subject, quoteContext, resetHr
           label="Share your requirement"
           title="Tell us what you need"
           context={quoteContext}
-          className="!px-4 !py-2 !text-[13px]"
+          className="!px-4 !py-2 !text-[15.5px]"
         />
         <Link
           href="/list-your-business"
-          className="rounded-lg border border-line px-4 py-2 text-[13px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
+          className="rounded-lg border border-line px-4 py-2 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
         >
           List your business
         </Link>

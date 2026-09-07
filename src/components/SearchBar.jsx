@@ -113,7 +113,7 @@ export default function SearchBar({
     go(`/${city}`, service.trim() || undefined);
   }
   const isHero = variant === "hero";
-  const fieldText = isHero ? "text-[15px]" : "text-sm";
+  const fieldText = isHero ? "text-[17px]" : "text-sm";
   return (
     <div ref={rootRef} className="relative">
       <form

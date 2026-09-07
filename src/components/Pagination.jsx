@@ -18,7 +18,7 @@ export default function Pagination({ page, totalPages, basePath, searchParams })
   const end = Math.min(totalPages, start + 4);
   for (let i = start; i <= end; i++) pages.push(i);
   const base =
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-[13px] transition-colors";
+    "inline-flex h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-[15.5px] transition-colors";
   return (
     <nav aria-label="Pagination" className="mt-8 flex items-center justify-center gap-1.5">
       {page > 1 ? (

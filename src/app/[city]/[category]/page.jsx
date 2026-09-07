@@ -34,6 +34,7 @@ export default async function CategoryPage({ params, searchParams }) {
     categorySlug: category.slug,
     verifiedOnly: query.verified === "1",
     locality: query.locality,
+    serviceType: query.type,
     sort: query.sort ?? undefined,
     page,
     perPage: 10,
@@ -56,7 +57,7 @@ export default async function CategoryPage({ params, searchParams }) {
             {category.name} categories in {city.name}
           </h1>
           {category.description && (
-            <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-500">
+            <p className="mt-2 max-w-2xl text-[17px] leading-relaxed text-ink-500">
               {category.description} Browse providers across {city.name}, {city.state}.
             </p>
           )}

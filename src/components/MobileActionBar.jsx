@@ -11,7 +11,7 @@ export default function MobileActionBar({ business }) {
         {business.phone && (
           <a
             href={`tel:+91${business.phone}`}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line py-2.5 text-[13px] font-medium text-navy-900"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line py-2.5 text-[15.5px] font-medium text-navy-900"
           >
             <Phone className="h-4 w-4" aria-hidden />
             Call
@@ -23,7 +23,7 @@ export default function MobileActionBar({ business }) {
             href={`https://wa.me/91${business.whatsapp}`}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line py-2.5 text-[13px] font-medium text-navy-900"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line py-2.5 text-[15.5px] font-medium text-navy-900"
           >
             <MessageCircle className="h-4 w-4" aria-hidden />
             WhatsApp
@@ -34,7 +34,7 @@ export default function MobileActionBar({ business }) {
           label="Get Quote"
           title={`Get a quote from ${business.name}`}
           context={`Your requirement is shared with ${business.name}, ${business.address.city}.`}
-          className="flex-1 !py-2.5 !text-[13px]"
+          className="flex-1 !py-2.5 !text-[15.5px]"
         />
       </div>
     </div>

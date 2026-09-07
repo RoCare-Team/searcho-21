@@ -3,7 +3,7 @@ import { Clock, MapPin, Search, TrendingUp } from "lucide-react";
 function Group({ title, children }) {
   return (
     <div className="py-2">
-      <p className="px-4 pb-1 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+      <p className="px-4 pb-1 text-[13.5px] font-semibold uppercase tracking-wide text-ink-400">
         {title}
       </p>
       {children}

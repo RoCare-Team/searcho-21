@@ -15,12 +15,12 @@ export default function FilterDrawer({ options, activeCount, active, onChange })
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3.5 py-2 text-[13px] font-medium text-navy-900"
+        className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3.5 py-2 text-[15.5px] font-medium text-navy-900"
       >
         <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
         Filters
         {activeCount > 0 && (
-          <span className="rounded-full bg-brand-500 px-1.5 text-[11px] font-semibold text-white">
+          <span className="rounded-full bg-brand-500 px-1.5 text-[13.5px] font-semibold text-white">
             {activeCount}
           </span>
         )}
@@ -104,7 +104,7 @@ export default function FilterDrawer({ options, activeCount, active, onChange })
 function Group({ title, children }) {
   return (
     <div>
-      <p className="mb-2.5 text-[13px] font-medium text-navy-900">{title}</p>
+      <p className="mb-2.5 text-[15.5px] font-medium text-navy-900">{title}</p>
       {children}
     </div>
   );
@@ -120,7 +120,7 @@ function ChipRow({ items, value, onChange }) {
             type="button"
             aria-pressed={isActive}
             onClick={() => onChange(isActive ? null : item.value)}
-            className={`rounded-full border px-3 py-1.5 text-[13px] transition-colors ${
+            className={`rounded-full border px-3 py-1.5 text-[15.5px] transition-colors ${
               isActive
                 ? "border-brand-200 bg-brand-50 text-brand-700"
                 : "border-line bg-white text-ink-700"

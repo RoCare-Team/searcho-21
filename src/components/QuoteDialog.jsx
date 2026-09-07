@@ -7,8 +7,9 @@ const VARIANTS = {
     "rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-600",
   outline:
     "rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas",
-  soft: "rounded-lg bg-brand-50 px-4 py-2 text-[13px] font-medium text-brand-700 transition-colors hover:bg-brand-100",
-  link: "text-[12px] font-medium text-brand-600 transition-colors hover:text-brand-700 hover:underline",
+  soft: "rounded-lg bg-brand-50 px-4 py-2 text-[15.5px] font-medium text-brand-700 transition-colors hover:bg-brand-100",
+  link: "text-[14.5px] font-medium text-brand-600 transition-colors hover:text-brand-700 hover:underline",
+  navy: "rounded-lg bg-navy-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-navy-800",
 };
 /**
  * Enquiry dialog with its own trigger button.

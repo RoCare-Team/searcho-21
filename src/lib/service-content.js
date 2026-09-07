@@ -1,3 +1,4 @@
+import { wrapTables } from "@/lib/format";
 /**
  * Page scaffolding for the SEO landing URLs, e.g.
  *   /gurgaon/home-appliance/water-purifier/service/kent-ro-service
@@ -164,7 +165,7 @@ export function buildServicePageContent({ city, mapping, subCategory, serviceTyp
     keywords: mapping?.meta_keyword?.trim() || brand?.keywords || serviceType.keywords,
     h1,
     intro,
-    contentHtml: mapping?.content_text ?? null,
+    contentHtml: wrapTables(mapping?.content_text ?? null),
     benefits,
     howItWorks,
     sections,

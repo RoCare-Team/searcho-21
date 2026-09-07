@@ -7,7 +7,7 @@ export default function Gallery({ images }) {
       <div className="card flex flex-col items-center px-5 py-10 text-center">
         <ImageOff className="h-7 w-7 text-ink-400" aria-hidden />
         <p className="mt-3 text-sm font-medium text-navy-900">No photos yet</p>
-        <p className="mt-1 text-[13px] text-ink-500">This listing has not uploaded any photos.</p>
+        <p className="mt-1 text-[15.5px] text-ink-500">This listing has not uploaded any photos.</p>
       </div>
     );
   }

@@ -43,7 +43,7 @@ export default function ContactPage() {
         <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
           <div>
             <h2 className="text-base font-semibold">Send us a message</h2>
-            <p className="mt-1 text-[13px] text-ink-500">
+            <p className="mt-1 text-[15.5px] text-ink-500">
               Tell us what you need and the team will get back to you.
             </p>
             <div className="card mt-4 max-w-lg p-5">
@@ -60,7 +60,7 @@ export default function ContactPage() {
                     <Icon className="h-4 w-4" aria-hidden />
                   </span>
                   <span>
-                    <span className="block text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                    <span className="block text-[13.5px] font-semibold uppercase tracking-wide text-ink-400">
                       {label}
                     </span>
                     {href ? (

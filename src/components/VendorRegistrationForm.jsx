@@ -115,7 +115,7 @@ export default function VendorRegistrationForm({ categories }) {
         <div>
           <label
             htmlFor="biz-category"
-            className="mb-1.5 block text-[13px] font-medium text-navy-900"
+            className="mb-1.5 block text-[15.5px] font-medium text-navy-900"
           >
             Category <span className="text-brand-600">*</span>
           </label>
@@ -184,7 +184,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-navy-900">
+      <label htmlFor={id} className="mb-1.5 block text-[15.5px] font-medium text-navy-900">
         {label}{" "}
         {required ? (
           <span className="text-brand-600">*</span>
@@ -209,7 +209,7 @@ function Field({
 function TextArea({ id, label, value, onChange, error, hint, required, rows = 3, placeholder }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-navy-900">
+      <label htmlFor={id} className="mb-1.5 block text-[15.5px] font-medium text-navy-900">
         {label}{" "}
         {required ? (
           <span className="text-brand-600">*</span>

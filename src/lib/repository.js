@@ -27,7 +27,8 @@ export function fetchLocalities(limit = 2000) {
 export function fetchLocalityBySlug(slug) {
   return queryOne(
     `SELECT id, locality_name, locality_url, city_id, state_id, city_name, state_name,
-            locality_icon, locality_content, meta_title, meta_description, status
+            locality_icon, locality_content, meta_title, meta_description,
+            popular_locality, status
        FROM locality_tb
       WHERE locality_url = ? AND status = 1
       LIMIT 1`,
@@ -88,6 +89,17 @@ export function fetchPageMapping(
  *   WHERE status = 1 [AND locality_id / category_id / level ids]
  *   GROUP BY free_listing_tb.id ORDER BY listing_order DESC
  */
+/**
+ * Sort clauses, kept as a lookup so the value from the URL can never reach the
+ * SQL string. Anything unrecognised falls back to the controllers' own default,
+ * listing_order descending.
+ */
+const ORDER_BY = {
+  relevance: "f.listing_order DESC",
+  views: "f.views DESC, f.listing_order DESC",
+  name: "f.business_name ASC",
+};
+
 export function fetchListings(q) {
   const where = ["f.status = '1'"];
   const params = [];
@@ -107,6 +119,9 @@ export function fetchListings(q) {
     where.push("m.cat_level_two_id = ?");
     params.push(q.levelTwoId);
   }
+  if (q.verifiedOnly) {
+    where.push("f.verified_status = '1'");
+  }
   params.push(q.limit, q.offset);
   return query(
     `SELECT f.*
@@ -114,7 +129,7 @@ export function fetchListings(q) {
        JOIN free_listing_category_location_maping_tb m ON m.free_listing_id = f.id
       WHERE ${where.join(" AND ")}
       GROUP BY f.id
-      ORDER BY f.listing_order DESC
+      ORDER BY ${ORDER_BY[q.sort] ?? ORDER_BY.relevance}
       LIMIT ? OFFSET ?`,
     params,
   );
@@ -138,6 +153,9 @@ export function fetchListingCount(q) {
   if (q.levelTwoId) {
     where.push("m.cat_level_two_id = ?");
     params.push(q.levelTwoId);
+  }
+  if (q.verifiedOnly) {
+    where.push("f.verified_status = '1'");
   }
   return queryOne(
     `SELECT COUNT(DISTINCT f.id) AS total
@@ -196,4 +214,69 @@ export function fetchHomePageServices() {
 /** global_setting_tb — a single row of site-wide settings. */
 export function fetchGlobalSettings() {
   return queryOne(`SELECT * FROM global_setting_tb WHERE status = 1 LIMIT 1`);
+}
+
+/**
+ * How many listings are mapped to each level-one category.
+ *
+ * Counted from free_listing_category_location_maping_tb, the same table the
+ * listing pages filter on, so the number on a category card matches what the
+ * visitor finds after clicking it.
+ */
+export function fetchCategoryListingCounts() {
+  return query(
+    `SELECT o.id, COUNT(DISTINCT m.free_listing_id) AS listings
+       FROM category_level_one_tb o
+       LEFT JOIN free_listing_category_location_maping_tb m
+              ON m.cat_level_one_id = o.id
+      WHERE o.status = '1'
+      GROUP BY o.id`,
+  );
+}
+
+/**
+ * How many listings are mapped to each level-two service, keyed by its slug.
+ *
+ * Counted from free_listing_category_location_maping_tb, the same table the
+ * listing pages filter on, so a count shown on a card matches what the visitor
+ * finds after clicking it.
+ */
+export function fetchServiceTypeListingCounts() {
+  return query(
+    `SELECT t.cat_level_two_url AS slug,
+            COUNT(DISTINCT m.free_listing_id) AS listings
+       FROM category_level_two_tb t
+       LEFT JOIN free_listing_category_location_maping_tb m
+              ON m.cat_level_two_id = t.id
+      WHERE t.status = '1'
+      GROUP BY t.id`,
+  );
+}
+
+/**
+ * Listings per level-two service, for the filter panel's counts.
+ *
+ * Scoped to the same locality and level-one the page is showing, so the number
+ * beside "AC Installation" is what that checkbox would actually return.
+ */
+export function fetchServiceTypeCounts({ localityId, levelOneId }) {
+  const where = ["f.status = '1'"];
+  const params = [];
+  if (localityId) {
+    where.push("m.locality_id = ?");
+    params.push(localityId);
+  }
+  if (levelOneId) {
+    where.push("m.cat_level_one_id = ?");
+    params.push(levelOneId);
+  }
+  return query(
+    `SELECT t.cat_level_two_url AS slug, COUNT(DISTINCT m.free_listing_id) AS listings
+       FROM category_level_two_tb t
+       JOIN free_listing_category_location_maping_tb m ON m.cat_level_two_id = t.id
+       JOIN free_listing_tb f ON f.id = m.free_listing_id
+      WHERE ${where.join(" AND ")}
+      GROUP BY t.id`,
+    params,
+  );
 }

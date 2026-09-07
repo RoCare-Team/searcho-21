@@ -64,13 +64,13 @@ export default function HeaderClient({ nav, services, allCities, popularCities }
             <div className="grid w-[34rem] grid-cols-2 gap-x-6 gap-y-4 p-5">
               {nav.categories.map((cat) => (
                 <div key={cat.slug}>
-                  <p className="mb-1.5 text-[13px] font-semibold text-navy-900">{cat.name}</p>
+                  <p className="mb-1.5 text-[15.5px] font-semibold text-navy-900">{cat.name}</p>
                   <ul className="space-y-1">
                     {cat.subCategories.map((sub) => (
                       <li key={sub.slug}>
                         <CityLink
                           path={`/${cat.slug}/${sub.slug}`}
-                          className="text-left text-[13px] text-ink-500 transition-colors hover:text-brand-600"
+                          className="text-left text-[15.5px] text-ink-500 transition-colors hover:text-brand-600"
                         >
                           {sub.name}
                         </CityLink>
@@ -92,7 +92,7 @@ export default function HeaderClient({ nav, services, allCities, popularCities }
                 <Link
                   key={city.slug}
                   href={`/${city.slug}`}
-                  className="text-[13px] text-ink-500 transition-colors hover:text-brand-600"
+                  className="text-[15.5px] text-ink-500 transition-colors hover:text-brand-600"
                 >
                   {city.name}
                 </Link>
@@ -203,7 +203,7 @@ export default function HeaderClient({ nav, services, allCities, popularCities }
                 <CityChip />
               </div>
 
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+              <p className="mb-2 text-[13.5px] font-semibold uppercase tracking-wide text-ink-400">
                 Categories
               </p>
               <ul className="mb-6 space-y-3">
@@ -226,7 +226,7 @@ export default function HeaderClient({ nav, services, allCities, popularCities }
                 ))}
               </ul>
 
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+              <p className="mb-2 text-[13.5px] font-semibold uppercase tracking-wide text-ink-400">
                 Popular cities
               </p>
               <ul className="mb-6 grid grid-cols-2 gap-y-1">

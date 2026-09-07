@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, MapPin, Search, X } from "lucide-react";
 import { cityCookieValue, clearCityCookieValue } from "@/lib/city";
 const CityContext = createContext({ city: null, openPicker: () => {} });
@@ -17,18 +17,46 @@ export function useCitySelection() {
  */
 export function CitySelectionProvider({ selected, popular, all, children }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const openPicker = useCallback(() => setIsOpen(true), []);
 
-  // Every URL on the site is city-scoped, so a visitor without a city cannot
-  // follow a single service link. The live site handles this by asking on
-  // arrival, and this does the same: the picker opens by itself until a city is
-  // chosen, then never again — the choice is remembered for a year.
+  /**
+   * The city the page is actually about.
+   *
+   * A city-scoped URL wins over the remembered cookie: landing on /mumbai from
+   * a search result while the cookie still said Gurgaon left the header naming
+   * one city and the listings showing another.
+   *
+   * Applied after mount rather than during render. The server has only the
+   * cookie to go on, so deriving this from the pathname at render time made the
+   * first client render disagree with the server's HTML — a hydration mismatch
+   * that React reported and then re-rendered the whole tree to recover from.
+   */
+  const [urlCity, setUrlCity] = useState(null);
+
   useEffect(() => {
-    if (!selected) setIsOpen(true);
-  }, [selected]);
-  const value = useMemo(() => ({ city: selected, openPicker }), [selected, openPicker]);
+    const first = pathname.split("/").filter(Boolean)[0];
+    const match = first ? (all.find((c) => c.slug === first) ?? null) : null;
+    setUrlCity(match);
+    // Keep the cookie honest for the next page, too.
+    if (match && match.slug !== selected?.slug) {
+      document.cookie = cityCookieValue(match.slug);
+    }
+  }, [pathname, all, selected]);
+
+  const city = urlCity ?? selected;
+
+  // Every URL on the site is city-scoped, so a visitor without a city cannot
+  // follow a single service link. The live site asks on arrival, and so does
+  // this — but only when the URL does not already name one, or landing straight
+  // on /mumbai would greet the visitor with a picker for a city they just chose.
+  useEffect(() => {
+    if (!city) setIsOpen(true);
+  }, [city]);
+
+  const value = useMemo(() => ({ city, openPicker }), [city, openPicker]);
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -41,11 +69,34 @@ export function CitySelectionProvider({ selected, popular, all, children }) {
     router.refresh();
   }
 
+  /**
+   * Where picking a city should take the visitor.
+   *
+   * Mirrors WebController's locality dropdown, which links straight to the
+   * chosen locality: from the homepage to "/<city>", and from a city-scoped
+   * page to the same page under the new city — its get_locality_ajax_wp emits
+   * "/<locality>/<service path>" for exactly that. Pages that are not
+   * city-scoped (a business profile, About, Login) stay where they are; only
+   * their links change.
+   */
+  function destinationFor(slug) {
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments.length === 0) return `/${slug}`;
+    const isCityScoped = all.some((c) => c.slug === segments[0]);
+    if (!isCityScoped) return null;
+    return `/${[slug, ...segments.slice(1)].join("/")}`;
+  }
+
   function choose(slug) {
-    // A year is plenty; this is a convenience, not an account setting.
     document.cookie = cityCookieValue(slug);
     setIsOpen(false);
     setQuery("");
+
+    const target = destinationFor(slug);
+    if (target) {
+      router.push(target);
+      return;
+    }
     // Server components build the city-scoped links, so re-render them.
     router.refresh();
   }
@@ -70,7 +121,7 @@ export function CitySelectionProvider({ selected, popular, all, children }) {
             <div className="flex items-start justify-between gap-4 border-b border-line p-5">
               <div>
                 <h2 className="text-base font-semibold text-navy-900">Choose your city</h2>
-                <p className="mt-0.5 text-[13px] text-ink-500">
+                <p className="mt-0.5 text-[15.5px] text-ink-500">
                   Listings are shown for the city you pick.
                 </p>
               </div>
@@ -125,12 +176,12 @@ export function CitySelectionProvider({ selected, popular, all, children }) {
                 )
               ) : (
                 <>
-                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                  <p className="mb-3 text-[13.5px] font-semibold uppercase tracking-wide text-ink-400">
                     Popular cities
                   </p>
                   <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {popular.map((c) => {
-                      const isActive = selected?.slug === c.slug;
+                      const isActive = city?.slug === c.slug;
                       return (
                         <li key={c.slug}>
                           <button
@@ -152,12 +203,12 @@ export function CitySelectionProvider({ selected, popular, all, children }) {
               )}
             </div>
 
-            {selected && (
+            {city && (
               <div className="border-t border-line px-5 py-3">
                 <button
                   type="button"
                   onClick={clearChoice}
-                  className="text-[13px] text-ink-500 transition-colors hover:text-brand-600"
+                  className="text-[15.5px] text-ink-500 transition-colors hover:text-brand-600"
                 >
                   Clear selection
                 </button>
@@ -176,7 +227,7 @@ export function CityChip() {
     <button
       type="button"
       onClick={openPicker}
-      className="inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-[13px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
+      className="inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
     >
       <MapPin className="h-3.5 w-3.5 text-ink-400" aria-hidden />
       {city ? city.name : "Select city"}

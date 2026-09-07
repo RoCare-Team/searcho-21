@@ -21,7 +21,7 @@ export default function LoginPage() {
           <LoginForm />
         </div>
 
-        <p className="mt-5 text-center text-[13px] text-ink-500">
+        <p className="mt-5 text-center text-[15.5px] text-ink-500">
           Not listed yet?{" "}
           <Link
             href="/list-your-business"

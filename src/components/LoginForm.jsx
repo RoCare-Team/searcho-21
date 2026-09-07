@@ -32,7 +32,7 @@ export default function LoginForm() {
       <div>
         <label
           htmlFor="login-mobile"
-          className="mb-1.5 block text-[13px] font-medium text-navy-900"
+          className="mb-1.5 block text-[15.5px] font-medium text-navy-900"
         >
           Registered mobile number <span className="text-brand-600">*</span>
         </label>

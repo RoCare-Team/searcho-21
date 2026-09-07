@@ -7,7 +7,7 @@ export default function PageHeader({ title, description, crumbs }) {
         <Breadcrumb items={crumbs} />
         <h1 className="mt-4 text-2xl font-semibold sm:text-3xl">{title}</h1>
         {description && (
-          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-500">{description}</p>
+          <p className="mt-2 max-w-2xl text-[17px] leading-relaxed text-ink-500">{description}</p>
         )}
       </div>
     </section>

@@ -15,13 +15,13 @@ export default function BrandChip({ name, href, serviceLabel }) {
   return (
     <Link
       href={href}
-      className="card card-hover group flex h-full flex-col justify-between gap-3 p-4"
+      className="card card-hover group flex h-full min-h-[112px] w-full flex-col justify-between gap-3 p-5"
     >
-      <span className="text-[14px] font-semibold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
+      <span className="text-[17px] font-semibold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
         {shortName(name, serviceLabel)}
       </span>
-      <span className="inline-flex items-center gap-1 text-[12.5px] font-medium text-brand-600">
-        View listings
+      <span className="inline-flex items-center gap-1 text-[15px] font-medium text-brand-600">
+        View providers
         <ArrowRight
           className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
           aria-hidden

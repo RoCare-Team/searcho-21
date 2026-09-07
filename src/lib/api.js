@@ -54,6 +54,9 @@ export async function getCity(slug) {
     state: row.state_name ?? "",
     nearby: siblings?.map((s) => s.locality_url),
     localities: siblings?.map((s) => s.locality_name),
+    // Same two fields getCities() derives; the city page needs them too.
+    photo: row.locality_icon || CITY_PHOTOS[row.locality_url],
+    popular: row.popular_locality === "1",
   };
 }
 /**
@@ -210,14 +213,25 @@ async function resolveIds(citySlug, categorySlug) {
  * WHERE status = 1 GROUP BY id ORDER BY listing_order DESC
  */
 export async function getBusinesses(query = {}) {
-  const { citySlug, categorySlug, page = 1, perPage = 10 } = query;
-  const ids = await resolveIds(citySlug, categorySlug);
+  const {
+    citySlug,
+    categorySlug,
+    sort,
+    verifiedOnly,
+    locality,
+    serviceType,
+    page = 1,
+    perPage = 10,
+  } = query;
+  const base = await resolveIds(citySlug, categorySlug);
+  const ids = { ...base, ...(await resolveFilters({ base, locality, serviceType })), verifiedOnly };
   const countRow = await repo.fetchListingCount(ids);
   const total = Number(countRow?.total ?? 0);
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   const safePage = Math.min(Math.max(1, page), totalPages);
   const rows = await repo.fetchListings({
     ...ids,
+    sort,
     limit: perPage,
     offset: (safePage - 1) * perPage,
   });
@@ -310,10 +324,17 @@ function homeServiceImage(path) {
  * `experts` is a real stored count, not a computed or invented one.
  */
 export async function getHomeServices() {
-  const [rows, levelOne] = await Promise.all([repo.fetchHomePageServices(), repo.fetchLevelOne()]);
+  const [rows, levelOne, counts] = await Promise.all([
+    repo.fetchHomePageServices(),
+    repo.fetchLevelOne(),
+    repo.fetchServiceTypeListingCounts(),
+  ]);
   if (!rows || rows.length === 0) return [];
 
   const nameById = new Map((levelOne ?? []).map((one) => [one.id, one.cat_level_one_name]));
+  const listingsBySlug = new Map(
+    (counts ?? []).map((row) => [row.slug, Number(row.listings) || 0]),
+  );
   const sections = new Map();
   for (const row of rows) {
     if (!sections.has(row.category)) {
@@ -323,13 +344,19 @@ export async function getHomeServices() {
         items: [],
       });
     }
+    const slug = String(row.url).split("/").filter(Boolean).pop();
     sections.get(row.category).items.push({
       id: row.id,
       name: row.service_name,
       // Stored without a leading slash and without the city, which the visitor's
       // chosen city supplies: "/<city>/home-appliance/water-purifier/service".
       path: `/${String(row.url).replace(/^\/+/, "")}`,
-      experts: row.experts ? Number(row.experts) : undefined,
+      // Last URL segment is the level-two slug: it picks the icon and the count.
+      slug,
+      // Counted live, not read from home_page_services_tb.experts: that column
+      // is stale — it claims 43 providers for water purifier repair, where the
+      // mapping table actually has 7,504.
+      experts: listingsBySlug.get(slug) || undefined,
       image: homeServiceImage(row.image_url),
     });
   }
@@ -352,4 +379,61 @@ export async function getGlobalSettings() {
     email: row.email ?? undefined,
     phone: row.phone_no ?? undefined,
   };
+}
+
+/**
+ * Listing counts keyed by level-one category id.
+ *
+ * Returns an empty map when the database is unreachable, so a card simply drops
+ * its count rather than showing a wrong one.
+ */
+export async function getCategoryListingCounts() {
+  const rows = await repo.fetchCategoryListingCounts();
+  if (!rows) return new Map();
+  return new Map(rows.map((row) => [row.id, Number(row.listings) || 0]));
+}
+
+/**
+ * Turns the filter panel's URL values into the ids the mapping table stores.
+ *
+ * A locality arrives as a name ("Vashi") because that is what the page lists,
+ * and a service type as a slug. Anything that does not resolve is dropped
+ * rather than guessed, so a stale link degrades to an unfiltered page.
+ */
+async function resolveFilters({ base, locality, serviceType }) {
+  const out = {};
+
+  if (locality) {
+    const cities = await getCities();
+    const match = cities.find((c) => c.name === locality);
+    if (match?.id) out.localityId = match.id;
+  }
+
+  if (serviceType) {
+    const categories = await getCategories();
+    for (const category of categories) {
+      for (const sub of category.subCategories) {
+        const type = sub.serviceTypes.find((t) => t.slug === serviceType);
+        if (type?.id) {
+          out.levelTwoId = type.id;
+          return out;
+        }
+      }
+    }
+  }
+
+  return out;
+}
+
+/** Listing counts per level-two slug, for the filter panel. */
+export async function getServiceTypeCounts({ citySlug, categorySlug, subCategorySlug }) {
+  const ids = await resolveIds(citySlug, categorySlug);
+  let levelOneId = ids.levelOneId;
+  if (!levelOneId && subCategorySlug) {
+    const found = await getSubCategory(categorySlug, subCategorySlug);
+    levelOneId = found?.subCategory.id;
+  }
+  const rows = await repo.fetchServiceTypeCounts({ localityId: ids.localityId, levelOneId });
+  if (!rows) return {};
+  return Object.fromEntries(rows.map((row) => [row.slug, Number(row.listings) || 0]));
 }

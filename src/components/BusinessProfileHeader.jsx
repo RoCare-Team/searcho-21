@@ -39,20 +39,20 @@ export default function BusinessProfileHeader({ business }) {
               </div>
 
               {typeof business.views === "number" && business.views > 0 && (
-                <p className="mt-1.5 inline-flex items-center gap-1.5 text-[13px] text-ink-500">
+                <p className="mt-1.5 inline-flex items-center gap-1.5 text-[15.5px] text-ink-500">
                   <Eye className="h-3.5 w-3.5 text-ink-400" aria-hidden />
                   {business.views.toLocaleString("en-IN")} profile views
                 </p>
               )}
 
               {address && (
-                <address className="mt-3 flex items-start gap-2 text-[13px] not-italic text-ink-500">
+                <address className="mt-3 flex items-start gap-2 text-[15.5px] not-italic text-ink-500">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ink-400" aria-hidden />
                   <span>{address}</span>
                 </address>
               )}
 
-              <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[13px]">
+              <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[15.5px]">
                 {business.phone && (
                   <a
                     href={`tel:+91${business.phone}`}
@@ -105,7 +105,7 @@ export default function BusinessProfileHeader({ business }) {
               {business.phone && (
                 <a
                   href={`tel:+91${business.phone}`}
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[13px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
                 >
                   <Phone className="h-3.5 w-3.5" aria-hidden />
                   Call
@@ -116,7 +116,7 @@ export default function BusinessProfileHeader({ business }) {
                   href={`https://wa.me/91${business.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[13px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas"
                 >
                   <MessageCircle className="h-3.5 w-3.5" aria-hidden />
                   Chat

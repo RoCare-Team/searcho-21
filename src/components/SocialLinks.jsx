@@ -12,7 +12,7 @@ export default function SocialLinks({ links }) {
   if (entries.length === 0) return null;
   return (
     <div>
-      <h3 className="mb-2.5 text-[13px] font-semibold uppercase tracking-wide text-ink-400">
+      <h3 className="mb-2.5 text-[15.5px] font-semibold uppercase tracking-wide text-ink-400">
         Social profiles
       </h3>
       <ul className="flex flex-wrap gap-2">
@@ -24,7 +24,7 @@ export default function SocialLinks({ links }) {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-1.5 text-[13px] text-ink-700 transition-colors hover:border-line-strong hover:text-brand-600"
+                className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-1.5 text-[15.5px] text-ink-700 transition-colors hover:border-line-strong hover:text-brand-600"
               >
                 <Icon className="h-3.5 w-3.5 text-ink-400" aria-hidden />
                 {key}

@@ -30,7 +30,7 @@ const SOCIAL = [
 function Column({ title, links }) {
   return (
     <div>
-      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-white/50">
+      <h3 className="mb-3 text-[13.5px] font-semibold uppercase tracking-wide text-white/50">
         {title}
       </h3>
       <ul className="space-y-2">
@@ -38,7 +38,7 @@ function Column({ title, links }) {
           <li key={link.href}>
             <Link
               href={link.href}
-              className="text-[13px] text-white/70 transition-colors hover:text-white"
+              className="text-[15.5px] text-white/70 transition-colors hover:text-white"
             >
               {link.label}
             </Link>
@@ -70,10 +70,10 @@ export default async function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand block */}
           <div className="lg:col-span-1">
-            <p className="text-[19px] font-semibold tracking-tight">
+            <p className="text-[20px] font-semibold tracking-tight">
               Searcho<span className="text-brand-500">21</span>
             </p>
-            <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-white/60">
+            <p className="mt-2 max-w-xs text-[15.5px] leading-relaxed text-white/60">
               {SITE_TAGLINE}. Find verified local service experts near you.
             </p>
             <a
@@ -102,7 +102,7 @@ export default async function Footer() {
           <Column title="Company" links={COMPANY} />
           <Column title="For Businesses" links={FOR_BUSINESS} />
           <div>
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-white/50">
+            <h3 className="mb-3 text-[13.5px] font-semibold uppercase tracking-wide text-white/50">
               Popular Services
             </h3>
             <ul className="space-y-2">
@@ -110,7 +110,7 @@ export default async function Footer() {
                 <li key={link.path}>
                   <CityLink
                     path={link.path}
-                    className="text-left text-[13px] text-white/70 transition-colors hover:text-white"
+                    className="text-left text-[15.5px] text-white/70 transition-colors hover:text-white"
                   >
                     {link.label}
                   </CityLink>
@@ -123,7 +123,7 @@ export default async function Footer() {
 
         {/* Popular cities — a single wrapped row rather than a fifth tall column. */}
         <div className="mt-10 border-t border-white/10 pt-8">
-          <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-white/50">
+          <h3 className="mb-3 text-[13.5px] font-semibold uppercase tracking-wide text-white/50">
             Popular Cities
           </h3>
           <ul className="flex flex-wrap gap-x-5 gap-y-2">
@@ -131,7 +131,7 @@ export default async function Footer() {
               <li key={city.slug}>
                 <Link
                   href={`/${city.slug}`}
-                  className="text-[13px] text-white/70 transition-colors hover:text-white"
+                  className="text-[15.5px] text-white/70 transition-colors hover:text-white"
                 >
                   {city.name}
                 </Link>

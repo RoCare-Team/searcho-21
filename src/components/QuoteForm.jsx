@@ -1,7 +1,12 @@
 "use client";
 import { useId, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
-function validate(values) {
+/**
+ * @param {boolean} full  Whether the optional half of the form is on screen.
+ *   The requirement is only demanded once its field is visible; the compact
+ *   form hides it until a name and mobile are in.
+ */
+function validate(values, full) {
   const errors = {};
   if (!values.name.trim()) errors.name = "Please enter your name.";
   if (!values.mobile.trim()) {
@@ -12,7 +17,7 @@ function validate(values) {
   if (values.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email.trim())) {
     errors.email = "Enter a valid email address.";
   }
-  if (!values.requirement.trim()) errors.requirement = "Tell us briefly what you need.";
+  if (full && !values.requirement.trim()) errors.requirement = "Tell us briefly what you need.";
   return errors;
 }
 /**
@@ -25,15 +30,35 @@ export default function QuoteForm({ context, compact = false, onDone }) {
   const [values, setValues] = useState({ name: "", email: "", mobile: "", requirement: "" });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+
+  /**
+   * The compact form opens with two fields and grows.
+   *
+   * A sidebar panel asking for four things before it has been given one is a
+   * wall; asking for a name and a number, then the rest, is the same form in
+   * two steps. Latched rather than derived, so clearing the name again does not
+   * collapse the fields the visitor is part-way through filling.
+   */
+  const [revealed, setRevealed] = useState(!compact);
+  const full = !compact || revealed;
+  if (compact && !revealed && values.name.trim() && values.mobile.trim()) {
+    setRevealed(true);
+  }
   function set(field, value) {
     setValues((v) => ({ ...v, [field]: value }));
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   }
   function handleSubmit(event) {
     event.preventDefault();
-    const found = validate(values);
+    const found = validate(values, full);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
+    // Name and mobile check out but the rest has not been shown yet: open it
+    // rather than submitting half a requirement.
+    if (!full) {
+      setRevealed(true);
+      return;
+    }
     // TODO: POST to the Searcho21 enquiry endpoint once the backend is wired up.
     setSubmitted(true);
     onDone?.();
@@ -49,11 +74,11 @@ export default function QuoteForm({ context, compact = false, onDone }) {
       </div>
     );
   }
-  const gap = compact ? "space-y-3.5" : "space-y-4";
+  const gap = compact ? "space-y-2.5" : "space-y-4";
   return (
     <form onSubmit={handleSubmit} noValidate className={gap}>
-      {context && (
-        <p className="rounded-lg bg-canvas px-3 py-2 text-[13px] text-ink-500">{context}</p>
+      {context && !compact && (
+        <p className="rounded-lg bg-canvas px-3 py-2 text-[15.5px] text-ink-500">{context}</p>
       )}
 
       <Field
@@ -64,6 +89,8 @@ export default function QuoteForm({ context, compact = false, onDone }) {
         error={errors.name}
         onChange={(v) => set("name", v)}
         autoComplete="name"
+        placeholder="Your name"
+        compact={compact}
       />
 
       <Field
@@ -76,51 +103,63 @@ export default function QuoteForm({ context, compact = false, onDone }) {
         error={errors.mobile}
         onChange={(v) => set("mobile", v)}
         autoComplete="tel"
+        placeholder="Mobile number"
+        compact={compact}
       />
 
-      <Field
-        id={`${uid}-email`}
-        label="Email"
-        hint="Optional"
-        type="email"
-        value={values.email}
-        error={errors.email}
-        onChange={(v) => set("email", v)}
-        autoComplete="email"
-      />
+      {full && (
+        <>
+          <Field
+            id={`${uid}-email`}
+            label="Email"
+            hint="Optional"
+            type="email"
+            value={values.email}
+            error={errors.email}
+            onChange={(v) => set("email", v)}
+            autoComplete="email"
+            placeholder="Email (optional)"
+            compact={compact}
+          />
 
-      <div>
-        <label
-          htmlFor={`${uid}-req`}
-          className="mb-1.5 block text-[13px] font-medium text-navy-900"
-        >
-          Requirement <span className="text-brand-600">*</span>
-        </label>
-        <textarea
-          id={`${uid}-req`}
-          rows={3}
-          value={values.requirement}
-          onChange={(e) => set("requirement", e.target.value)}
-          aria-invalid={Boolean(errors.requirement)}
-          aria-describedby={errors.requirement ? `${uid}-req-err` : undefined}
-          placeholder="e.g. Kent RO not giving water, needs a service visit this week."
-          className={`w-full resize-y rounded-lg border bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-200 ${errors.requirement ? "border-brand-600" : "border-line"}`}
-        />
-        {errors.requirement && (
-          <p id={`${uid}-req-err`} className="mt-1 text-xs text-brand-700">
-            {errors.requirement}
-          </p>
-        )}
-      </div>
+          <div>
+            <label
+              htmlFor={`${uid}-req`}
+              className={compact ? "sr-only" : "mb-1.5 block text-[15.5px] font-medium text-navy-900"}
+            >
+              Requirement {!compact && <span className="text-brand-600">*</span>}
+            </label>
+            <textarea
+              id={`${uid}-req`}
+              rows={compact ? 2 : 3}
+              value={values.requirement}
+              onChange={(e) => set("requirement", e.target.value)}
+              aria-invalid={Boolean(errors.requirement)}
+              aria-describedby={errors.requirement ? `${uid}-req-err` : undefined}
+              placeholder={
+                compact
+                  ? "What do you need?"
+                  : "e.g. Kent RO not giving water, needs a service visit this week."
+              }
+              className={`w-full resize-y rounded-lg border bg-white px-3 text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-200 ${compact ? "py-1.5 text-[15.5px]" : "py-2 text-sm"} ${errors.requirement ? "border-brand-600" : "border-line"}`}
+            />
+            {errors.requirement && (
+              <p id={`${uid}-req-err`} className="mt-1 text-xs text-brand-700">
+                {errors.requirement}
+              </p>
+            )}
+          </div>
+        </>
+      )}
 
       <button
         type="submit"
-        className="w-full rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+        className={`w-full rounded-lg bg-brand-500 px-4 font-medium text-white transition-colors hover:bg-brand-600 ${compact ? "py-2 text-[15.5px]" : "py-2.5 text-sm"}`}
       >
         Submit requirement
       </button>
 
-      <p className="text-center text-xs text-ink-400">
+      <p className={`text-center text-ink-400 ${compact ? "text-[13.5px]" : "text-xs"}`}>
         By submitting you agree to be contacted by matching service providers.
       </p>
     </form>
@@ -129,18 +168,23 @@ export default function QuoteForm({ context, compact = false, onDone }) {
 function Field({
   id,
   label,
+  placeholder,
   value,
   onChange,
   error,
   hint,
   required,
+  compact = false,
   type = "text",
   inputMode,
   autoComplete,
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-navy-900">
+      <label
+        htmlFor={id}
+        className={compact ? "sr-only" : "mb-1.5 block text-[15.5px] font-medium text-navy-900"}
+      >
         {label}{" "}
         {required ? (
           <span className="text-brand-600">*</span>
@@ -153,11 +197,12 @@ function Field({
         type={type}
         inputMode={inputMode}
         autoComplete={autoComplete}
+        placeholder={compact ? placeholder : undefined}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-err` : undefined}
-        className={`w-full rounded-lg border bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-200 ${error ? "border-brand-600" : "border-line"}`}
+        className={`w-full rounded-lg border bg-white px-3 text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-200 ${compact ? "py-1.5 text-[15.5px]" : "py-2 text-sm"} ${error ? "border-brand-600" : "border-line"}`}
       />
       {error && (
         <p id={`${id}-err`} className="mt-1 text-xs text-brand-700">

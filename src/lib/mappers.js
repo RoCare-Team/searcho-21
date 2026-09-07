@@ -148,7 +148,7 @@ export function mapListing(row, extras = {}) {
     whatsapp: row.whatsapp ?? undefined,
     email: row.email ?? undefined,
     website: row.website ?? undefined,
-    establishedYear: row.estb_year ?? undefined,
+    establishedYear: establishedYear(row.estb_year),
     contactPerson: row.cont_person ?? undefined,
     designation: row.designation ?? undefined,
     gstNumber: row.gst_number ?? undefined,
@@ -177,4 +177,19 @@ export function initialsOf(name) {
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+/**
+ * The year a business was established.
+ *
+ * free_listing_tb.estb_year is a datetime rather than a year — values look like
+ * "2018-11-06 18:30:00" — so it is reduced to the four-digit year here. Values
+ * that hold no plausible year (blanks, "N/A") return undefined, and every
+ * consumer then leaves the field out rather than printing nonsense.
+ */
+function establishedYear(value) {
+  const match = String(value ?? "").match(/\b(19|20)\d{2}\b/);
+  if (!match) return undefined;
+  const year = Number(match[0]);
+  return year <= new Date().getFullYear() ? String(year) : undefined;
 }

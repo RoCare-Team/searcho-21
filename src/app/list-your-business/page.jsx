@@ -46,8 +46,8 @@ export default async function ListYourBusinessPage() {
               <span className="inline-flex rounded-lg bg-brand-50 p-2 text-brand-600">
                 <reason.Icon className="h-4 w-4" aria-hidden />
               </span>
-              <h2 className="mt-3 text-[15px] font-medium">{reason.title}</h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-ink-500">{reason.description}</p>
+              <h2 className="mt-3 text-[17px] font-medium">{reason.title}</h2>
+              <p className="mt-1 text-[15.5px] leading-relaxed text-ink-500">{reason.description}</p>
             </li>
           ))}
         </ul>

@@ -50,7 +50,7 @@ export default function FilterBar({ options }) {
 
       {/* Desktop: a compact inline bar. */}
       <div className="hidden min-w-0 flex-wrap items-center gap-2 lg:flex">
-        <span className="mr-1 inline-flex items-center gap-1.5 text-[13px] text-ink-500">
+        <span className="mr-1 inline-flex items-center gap-1.5 text-[15.5px] text-ink-500">
           <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
           Filters
         </span>
@@ -77,7 +77,7 @@ export default function FilterBar({ options }) {
           type="button"
           onClick={() => setParam("verified", active.verified ? null : "1")}
           aria-pressed={Boolean(active.verified)}
-          className={`rounded-lg border px-3 py-1.5 text-[13px] transition-colors ${
+          className={`rounded-lg border px-3 py-1.5 text-[15.5px] transition-colors ${
             active.verified
               ? "border-success-200 bg-success-50 text-success-700"
               : "border-line bg-white text-ink-700 hover:border-line-strong"
@@ -90,7 +90,7 @@ export default function FilterBar({ options }) {
           <button
             type="button"
             onClick={() => router.push(pathname, { scroll: false })}
-            className="inline-flex items-center gap-1 text-[13px] text-ink-500 transition-colors hover:text-brand-600"
+            className="inline-flex items-center gap-1 text-[15.5px] text-ink-500 transition-colors hover:text-brand-600"
           >
             <X className="h-3.5 w-3.5" aria-hidden />
             Clear
@@ -113,7 +113,7 @@ export default function FilterBar({ options }) {
 }
 export function Select({ label, value, onChange, options, allowEmpty = true }) {
   return (
-    <label className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-[13px] transition-colors focus-within:border-line-strong">
+    <label className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-[15.5px] transition-colors focus-within:border-line-strong">
       <span className="text-ink-400">{label}</span>
       <select
         value={value}
