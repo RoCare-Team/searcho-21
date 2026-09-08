@@ -14,10 +14,10 @@ const STYLES = {
   button: {
     wrap: "inline-flex",
     shown:
-      "inline-flex h-11 items-center justify-center gap-1.5 truncate rounded-lg bg-brand-500 px-4 text-[15.5px] font-medium text-white transition-colors hover:bg-brand-600",
+      "inline-flex h-10 items-center justify-center gap-1.5 truncate rounded-lg bg-brand-500 px-4 text-[15.5px] font-medium text-white transition-colors hover:bg-brand-600",
     masked: "hidden",
     action:
-      "inline-flex h-11 items-center justify-center gap-1.5 truncate rounded-lg bg-brand-500 px-4 text-[15.5px] font-medium text-white transition-colors hover:bg-brand-600",
+      "inline-flex h-10 items-center justify-center gap-1.5 truncate rounded-lg bg-brand-500 px-4 text-[15.5px] font-medium text-white transition-colors hover:bg-brand-600",
   },
 };
 

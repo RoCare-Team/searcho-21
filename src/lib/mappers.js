@@ -184,7 +184,8 @@ export function mapListing(row, extras = {}) {
     designation: row.designation ?? undefined,
     gstNumber: row.gst_number ?? undefined,
     logoUrl: assetUrl("logo_img", row.logo_img),
-    bannerUrl: assetUrl("banner_image", row.banner_image),
+    bannerUrl:
+      assetUrl("banner_image", row.banner_image) ?? assetUrl("banner_image", extras.fallbackBanner),
     views: row.views,
     openingHours: parseOpeningHours(row.closing_time),
     social: parseSocialLinks(row.socale_links),

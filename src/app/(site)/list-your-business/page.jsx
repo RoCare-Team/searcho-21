@@ -1,6 +1,6 @@
 import { BadgeCheck, PhoneCall, Search } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
-import VendorRegistrationForm from "@/components/VendorRegistrationForm";
+import VendorSignupForm from "@/components/VendorSignupForm";
 import { getCategories } from "@/lib/api";
 import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
@@ -47,16 +47,15 @@ export default async function ListYourBusinessPage() {
                 <reason.Icon className="h-4 w-4" aria-hidden />
               </span>
               <h2 className="mt-3 text-[17px] font-medium">{reason.title}</h2>
-              <p className="mt-1 text-[15.5px] leading-relaxed text-ink-500">{reason.description}</p>
+              <p className="mt-1 text-[15.5px] leading-relaxed text-ink-500">
+                {reason.description}
+              </p>
             </li>
           ))}
         </ul>
 
-        <div className="max-w-3xl">
-          <h2 className="mb-4 text-base font-semibold">Business details</h2>
-          <VendorRegistrationForm
-            categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
-          />
+        <div className="max-w-md">
+          <VendorSignupForm />
         </div>
       </div>
     </>

@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import { createListingAction } from "@/app/(site)/list-your-business/actions";
 import { CheckCircle2 } from "lucide-react";
 const EMPTY = {
   businessName: "",
@@ -37,7 +39,9 @@ function validate(values) {
 export default function VendorRegistrationForm({ categories }) {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(null);
+  const [saveError, setSaveError] = useState(null);
+  const [pending, startTransition] = useTransition();
   function set(field, value) {
     setValues((v) => ({ ...v, [field]: value }));
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
@@ -47,22 +51,47 @@ export default function VendorRegistrationForm({ categories }) {
     const found = validate(values);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
-    // TODO: POST to the Searcho21 vendor registration endpoint.
-    setSubmitted(true);
+
+    setSaveError(null);
+    const data = new FormData();
+    data.set("name", values.businessName);
+    data.set("contactPerson", values.ownerName);
+    data.set("mobile", values.mobile);
+    data.set("email", values.email);
+    data.set("city", values.city);
+    data.set("address", values.address);
+    data.set("about", values.about);
+    // The form holds the category slug; the insert needs its numeric id.
+    data.set("categoryId", categories.find((c) => c.slug === values.category)?.id ?? "");
+
+    startTransition(async () => {
+      const result = await createListingAction(null, data);
+      if (result.ok) setSubmitted(result.message);
+      else setSaveError(result.message);
+    });
   }
   if (submitted) {
     return (
       <div className="card flex flex-col items-center px-6 py-12 text-center">
         <CheckCircle2 className="h-10 w-10 text-success-600" aria-hidden />
-        <h2 className="mt-4 text-lg font-semibold">Registration received</h2>
-        <p className="mt-1 max-w-sm text-sm text-ink-500">
-          The Searcho21 team will review your details and get in touch to complete the listing.
-        </p>
+        <h2 className="mt-4 text-lg font-semibold">Business submitted</h2>
+        <p className="mt-1 max-w-sm text-[15.5px] text-ink-500">{submitted}</p>
+        <Link
+          href="/account"
+          className="mt-5 inline-flex h-11 items-center rounded-lg bg-brand-500 px-4 text-[15.5px] font-medium text-white transition-colors hover:bg-brand-600"
+        >
+          Go to my account
+        </Link>
       </div>
     );
   }
   return (
     <form onSubmit={handleSubmit} noValidate className="card space-y-5 p-5 sm:p-6">
+      {saveError && (
+        <p className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-[14.5px] text-brand-700">
+          {saveError}
+        </p>
+      )}
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
           id="biz-name"
@@ -159,6 +188,7 @@ export default function VendorRegistrationForm({ categories }) {
 
       <button
         type="submit"
+        disabled={pending}
         className="w-full rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-600 sm:w-auto sm:px-8"
       >
         Register my business

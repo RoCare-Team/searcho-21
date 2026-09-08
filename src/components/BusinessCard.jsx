@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDays, Eye, MapPin, MessageCircle } from "lucide-react";
+import { ArrowRight, CalendarDays, Eye, MapPin, MessageCircle } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import BusinessLogo from "@/components/BusinessLogo";
 import RevealPhone from "@/components/RevealPhone";
@@ -25,25 +25,28 @@ export default function BusinessCard({ business }) {
   const href = `/business/${business.slug}/${business.id}`;
   const address = shortAddress(business);
   const years = yearsInBusiness(business.establishedYear);
-  // Only 85 of the listings have gallery images, so the thumbnail is shown when
-  // there is one rather than reserving an empty frame on every card.
+  // Banner first, matching the live site: only 85 listings have gallery photos
+  // and 186 have a banner of their own, but every listing falls back to its
+  // category's default banner, so the frame is never empty.
   const photos = (business.gallery ?? []).filter((image) => image.src);
+  const image = business.bannerUrl ?? photos[0]?.src ?? null;
+  const extraPhotos = business.bannerUrl ? photos.length : Math.max(0, photos.length - 1);
 
   return (
-    <article className="card card-hover p-5">
-      <div className="flex gap-5">
+    <article className="card card-hover p-4 transition-shadow">
+      <div className="flex gap-4">
         <Link href={href} className="shrink-0">
           <BusinessLogo
             name={business.name}
             src={business.logoUrl}
-            size={90}
-            className="h-16 w-16 sm:h-[90px] sm:w-[90px]"
+            size={72}
+            className="h-14 w-14 sm:h-[72px] sm:w-[72px]"
           />
         </Link>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="text-[18px] font-semibold text-navy-900 sm:text-[20px]">
+            <h3 className="text-[17px] font-semibold text-navy-900 sm:text-[18.5px]">
               <Link href={href} className="transition-colors hover:text-brand-600">
                 {business.name}
               </Link>
@@ -70,24 +73,22 @@ export default function BusinessCard({ business }) {
           </div>
 
           {address && (
-            <p className="mt-2 flex items-start gap-1.5 text-[15.5px] text-ink-600">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ink-400" aria-hidden />
-              <span className="min-w-0">{address}</span>
+            <p className="mt-1.5 flex items-center gap-1.5 text-[15px] text-ink-600">
+              <MapPin className="h-4 w-4 shrink-0 text-ink-400" aria-hidden />
+              <span className="truncate">{address}</span>
             </p>
           )}
 
           {business.summary && (
-            <p className="line-clamp-2-safe mt-2 text-[15.5px] leading-relaxed text-ink-500">
-              {business.summary}
-            </p>
+            <p className="mt-1.5 truncate text-[15px] text-ink-500">{business.summary}</p>
           )}
 
           {business.categoryLabels.length > 0 && (
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <ul className="mt-2.5 flex flex-wrap gap-2">
               {business.categoryLabels.map((label) => (
                 <li
                   key={label}
-                  className="rounded-full border border-line bg-canvas px-2.5 py-1 text-[14px] text-ink-600"
+                  className="rounded-full border border-line bg-canvas px-2.5 py-0.5 text-[13.5px] text-ink-600"
                 >
                   {label}
                 </li>
@@ -96,22 +97,22 @@ export default function BusinessCard({ business }) {
           )}
         </div>
 
-        {photos.length > 0 && (
+        {image && (
           <Link
             href={href}
-            className="relative hidden h-[136px] w-[170px] shrink-0 overflow-hidden rounded-xl border border-line bg-canvas md:block"
+            className="relative hidden w-[236px] shrink-0 self-stretch overflow-hidden rounded-lg bg-canvas lg:block"
           >
             <Image
-              src={photos[0].src}
-              alt={photos[0].alt || ""}
+              src={image}
+              alt=""
               fill
               loading="lazy"
-              sizes="170px"
-              className="object-cover transition-transform duration-200 hover:scale-[1.04]"
+              sizes="236px"
+              className="object-cover object-center"
             />
-            {photos.length > 1 && (
+            {extraPhotos > 0 && (
               <span className="absolute bottom-1 right-1 rounded bg-navy-900/75 px-1.5 py-0.5 text-[13px] font-medium text-white">
-                +{photos.length - 1} Photos
+                +{extraPhotos} Photos
               </span>
             )}
           </Link>
@@ -119,7 +120,7 @@ export default function BusinessCard({ business }) {
       </div>
 
       {/* Actions */}
-      <div className="mt-4 flex flex-wrap items-center gap-2.5 border-t border-line pt-4">
+      <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-line pt-3.5">
         <RevealPhone
           masked={business.phoneMasked}
           phone={business.phone}
@@ -133,7 +134,7 @@ export default function BusinessCard({ business }) {
             target="_blank"
             rel="noopener noreferrer nofollow"
             aria-label={`WhatsApp ${business.name}`}
-            className="inline-flex h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-4 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas sm:flex-none"
+            className="inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-4 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-line-strong hover:bg-canvas sm:flex-none"
           >
             <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" aria-hidden />
             WhatsApp
@@ -145,14 +146,15 @@ export default function BusinessCard({ business }) {
           title={`Send an enquiry to ${business.name}`}
           context={`Your requirement is shared with ${business.name}${business.address.city ? `, ${business.address.city}` : ""}.`}
           variant="navy"
-          className="!h-11 min-w-0 !flex-1 !px-4 !py-0 !text-[15.5px] sm:!flex-none"
+          className="!h-10 min-w-0 !flex-1 !px-4 !py-0 !text-[15.5px] sm:!flex-none"
         />
 
         <Link
           href={href}
-          className="inline-flex h-11 w-full items-center justify-center text-[15.5px] font-medium text-ink-600 transition-colors hover:text-brand-600 sm:ml-auto sm:w-auto sm:justify-end"
+          className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-line bg-canvas px-4 text-[15.5px] font-medium text-navy-900 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-600 sm:ml-auto sm:w-auto"
         >
           View Profile
+          <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
       </div>
     </article>

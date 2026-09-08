@@ -266,12 +266,13 @@ export async function getListingCount(citySlug, categorySlug) {
 /** A listing row plus its joined gallery, keywords and category mappings. */
 async function buildBusiness(row) {
   const id = String(row.id);
-  const [gallery, keywords, mappings, categories, allCities] = await Promise.all([
+  const [gallery, keywords, mappings, categories, allCities, defaultBanners] = await Promise.all([
     repo.fetchGallery(id),
     repo.fetchListingKeywords(id),
     repo.fetchListingMappings(id),
     getCategories(),
     getCities(),
+    getDefaultBanners(),
   ]);
   const categorySlugs = new Set();
   const labels = new Set();
@@ -284,9 +285,19 @@ async function buildBusiness(row) {
       labels.add(sub.name);
     }
   }
+  // The listing's own banner where it has one, otherwise its category's — the
+  // fallback WebController applies, and the reason the live site shows artwork
+  // on every card.
+  const categoryId = mappings?.[0]?.category_id;
+  const fallbackList = categoryId ? defaultBanners.get(categoryId) : undefined;
+  const fallbackBanner = fallbackList?.length
+    ? fallbackList[Number(row.id) % fallbackList.length]
+    : undefined;
+
   const localityId = mappings?.[0]?.locality_id;
   const citySlug = allCities.find((c) => c.id === localityId)?.slug;
   return mapListing(row, {
+    fallbackBanner,
     gallery: gallery ?? undefined,
     keywords: keywords?.map((k) => k.keyword_name),
     categories: [...categorySlugs],
@@ -436,4 +447,36 @@ export async function getServiceTypeCounts({ citySlug, categorySlug, subCategory
   const rows = await repo.fetchServiceTypeCounts({ localityId: ids.localityId, levelOneId });
   if (!rows) return {};
   return Object.fromEntries(rows.map((row) => [row.slug, Number(row.listings) || 0]));
+}
+
+/**
+ * Fallback banners keyed by category id, in table order.
+ *
+ * A category has several (Home Appliance has eleven), so a listing picks one by
+ * its own id: every card gets artwork, neighbouring cards differ, and the same
+ * listing keeps the same banner on every page it appears on.
+ */
+export async function getDefaultBanners() {
+  const rows = await repo.fetchDefaultBanners();
+  if (!rows) return new Map();
+  const byCategory = new Map();
+  for (const row of rows) {
+    const list = byCategory.get(row.category_id) ?? [];
+    list.push(row.banner_image);
+    byCategory.set(row.category_id, list);
+  }
+  return byCategory;
+}
+
+/** States and cities for the enquiry popup's dropdowns. */
+export async function getStatesAndCities() {
+  const [states, cities] = await Promise.all([repo.fetchStates(), repo.fetchCities()]);
+  return {
+    states: (states ?? []).map((row) => ({ id: row.id, name: row.state_name })),
+    cities: (cities ?? []).map((row) => ({
+      id: row.id,
+      name: row.city_name,
+      stateId: row.state_id,
+    })),
+  };
 }

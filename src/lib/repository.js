@@ -280,3 +280,130 @@ export function fetchServiceTypeCounts({ localityId, levelOneId }) {
     params,
   );
 }
+
+/**
+ * default_banner_tb — the fallback artwork a listing shows when it has none.
+ *
+ * WebController does the same lookup on its listing pages
+ * (`default_banner_tb::where('category_id', …)`), which is why the live site
+ * shows a banner on every card: only 186 of 11,542 listings have one of their
+ * own.
+ */
+export function fetchDefaultBanners() {
+  return query(
+    `SELECT category_id, cat_level_one_id, banner_image
+       FROM default_banner_tb
+      WHERE status = '1' AND banner_image IS NOT NULL AND banner_image <> ''
+      ORDER BY id ASC`,
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Superadmin                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Dashboard counters, in one round trip.
+ *
+ * Mirrors what the existing panel's lists are filtered on: pending listings are
+ * status '0', live ones '1'.
+ */
+export function fetchAdminCounts() {
+  return queryOne(
+    `SELECT
+       (SELECT COUNT(*) FROM free_listing_tb WHERE status = '0') AS pending,
+       (SELECT COUNT(*) FROM free_listing_tb WHERE status = '1') AS live,
+       (SELECT COUNT(*) FROM free_listing_tb WHERE status = '1' AND verified_status = '1') AS verified,
+       (SELECT COUNT(*) FROM enquiry_tb) AS enquiries,
+       (SELECT COUNT(*) FROM get_popup_enquiry_tb) AS popup_enquiries,
+       (SELECT COUNT(*) FROM user_tb WHERE user_type_key = 'user') AS vendors,
+       (SELECT COUNT(*) FROM locality_tb WHERE status = 1) AS localities`,
+  );
+}
+
+/**
+ * Listings awaiting a decision — SuperadminController::list_free_listing().
+ *
+ * Same filters the existing screen offers, all optional.
+ */
+export function fetchAdminListings(q = {}) {
+  const where = ["f.status = ?"];
+  const params = [q.status ?? "0"];
+
+  if (q.search) {
+    where.push("(f.business_name LIKE ? OR f.mobile_no LIKE ? OR f.email LIKE ?)");
+    const like = `%${q.search}%`;
+    params.push(like, like, like);
+  }
+  if (q.verifiedStatus) {
+    where.push("f.verified_status = ?");
+    params.push(q.verifiedStatus);
+  }
+  if (q.city) {
+    where.push("f.city = ?");
+    params.push(q.city);
+  }
+
+  params.push(q.limit ?? 25, q.offset ?? 0);
+  return query(
+    `SELECT f.id, f.business_name, f.listing_url, f.mobile_no, f.email, f.city, f.state,
+            f.verified_status, f.status, f.created_at, f.logo_img
+       FROM free_listing_tb f
+      WHERE ${where.join(" AND ")}
+      ORDER BY f.id DESC
+      LIMIT ? OFFSET ?`,
+    params,
+  );
+}
+
+/** Total for the same filters, so the list can be paged. */
+export function fetchAdminListingCount(q = {}) {
+  const where = ["f.status = ?"];
+  const params = [q.status ?? "0"];
+
+  if (q.search) {
+    where.push("(f.business_name LIKE ? OR f.mobile_no LIKE ? OR f.email LIKE ?)");
+    const like = `%${q.search}%`;
+    params.push(like, like, like);
+  }
+  if (q.verifiedStatus) {
+    where.push("f.verified_status = ?");
+    params.push(q.verifiedStatus);
+  }
+  if (q.city) {
+    where.push("f.city = ?");
+    params.push(q.city);
+  }
+
+  return queryOne(
+    `SELECT COUNT(*) AS total FROM free_listing_tb f WHERE ${where.join(" AND ")}`,
+    params,
+  );
+}
+
+/**
+ * Sets a listing's status — SuperadminController::approve_listing() and
+ * reject_listing().
+ *
+ * The only write the panel performs so far. It is deliberately narrow: one
+ * column, one row, and the value is checked by the caller rather than passed
+ * through from a request.
+ */
+export function setListingStatus(listingId, status) {
+  if (status !== "0" && status !== "1" && status !== "2") {
+    throw new Error(`Refusing to write unexpected listing status: ${status}`);
+  }
+  return query(`UPDATE free_listing_tb SET status = ? WHERE id = ? LIMIT 1`, [status, listingId]);
+}
+
+/** state_tb — the enquiry popup's state dropdown. */
+export function fetchStates() {
+  return query(`SELECT id, state_name FROM state_tb WHERE status = '1' ORDER BY state_name ASC`);
+}
+
+/** city_tb — the enquiry popup's city dropdown, narrowed by state in the UI. */
+export function fetchCities() {
+  return query(
+    `SELECT id, city_name, state_id FROM city_tb WHERE status = '1' ORDER BY city_name ASC`,
+  );
+}

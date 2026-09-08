@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
  * Structured data for the same trail is emitted separately via breadcrumbJsonLd.
  */
 export default function Breadcrumb({ items }) {
+  if (!items?.length) return null;
   return (
     <nav aria-label="Breadcrumb" className="min-w-0">
       <ol className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs text-ink-500">

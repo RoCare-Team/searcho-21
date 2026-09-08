@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { BadgeCheck, Sparkles, Star } from "lucide-react";
-import { assetUrl } from "@/lib/mappers";
 
 /**
  * The hero's right-hand column: three service photographs and a brand panel.
@@ -8,9 +7,10 @@ import { assetUrl } from "@/lib/mappers";
  * The two columns split at different points rather than forming an even 2×2
  * grid — that stagger is what stops four rectangles from reading as a table.
  *
- * The photographs are the real per-service artwork from `assets/category`,
- * passed in by the page rather than named here, so the collage follows the
- * taxonomy instead of a fixed list. The floating labels describe what the site
+ * The artwork is the default category banners from `default_banner_tb`,
+ * passed in as URLs by the page rather than named here. The per-service photos
+ * used before are stored at 280x120 and were being scaled up into a tile more
+ * than twice that size, which is what made the hero look blurred. The floating labels describe what the site
  * does ("Verified" is a real badge on listings); none carries a count, because
  * no number here would come from the database.
  */
@@ -22,12 +22,12 @@ export default function HeroCollage({ photos }) {
     <div className="relative hidden h-92 lg:block">
       <div className="flex h-full gap-3.5">
         <div className="flex flex-[0.92] flex-col gap-3.5">
-          <Tile photo={first} className="flex-[1.15]" priority />
-          <Tile photo={third} className="flex-[0.85]" />
+          <Tile src={first} className="flex-[1.15]" priority />
+          <Tile src={third} className="flex-[0.85]" />
         </div>
 
         <div className="flex flex-[1.08] flex-col gap-3.5">
-          <Tile photo={second} className="flex-[1.35]" priority />
+          <Tile src={second} className="flex-[1.35]" priority />
 
           {/* The fourth cell is the brand panel rather than a fourth
               photograph, which keeps the block from reading as a stock-photo
@@ -70,8 +70,7 @@ export default function HeroCollage({ photos }) {
   );
 }
 
-function Tile({ photo, className = "", priority = false }) {
-  const src = assetUrl("category", photo?.image);
+function Tile({ src, className = "", priority = false }) {
   return (
     <span
       className={`relative block w-full overflow-hidden rounded-2xl border border-line bg-white shadow-card ${className}`}
@@ -81,7 +80,7 @@ function Tile({ photo, className = "", priority = false }) {
           src={src}
           alt=""
           fill
-          sizes="(min-width: 1024px) 21vw, 0px"
+          sizes="(min-width: 1024px) 22vw, 0px"
           priority={priority}
           className="object-cover"
         />

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, MapPin, Search, X } from "lucide-react";
 import { cityCookieValue, clearCityCookieValue } from "@/lib/city";
+import VoiceSearch from "@/components/VoiceSearch";
 const CityContext = createContext({ city: null, openPicker: () => {} });
 export function useCitySelection() {
   return useContext(CityContext);
@@ -15,7 +16,7 @@ export function useCitySelection() {
  * Rather than quietly defaulting to a city the visitor never picked, links that
  * need one open this picker instead (see `CityLink`).
  */
-export function CitySelectionProvider({ selected, popular, all, children }) {
+export function CitySelectionProvider({ selected, popular, all, services = [], children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -134,6 +135,17 @@ export function CitySelectionProvider({ selected, popular, all, children }) {
                 <X className="h-4 w-4" aria-hidden />
               </button>
             </div>
+
+            {services.length > 0 && (
+              <div className="border-b border-line p-5 pb-4">
+                <VoiceSearch
+                  services={services}
+                  cities={all}
+                  citySlug={city?.slug}
+                  onNoMatch={() => setIsOpen(false)}
+                />
+              </div>
+            )}
 
             <div className="border-b border-line p-5 pb-4">
               <label htmlFor="city-search" className="sr-only">

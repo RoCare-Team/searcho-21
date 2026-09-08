@@ -8,12 +8,14 @@ import CTA from "@/components/CTA";
 import {
   getCategories,
   getCategoryListingCounts,
+  getDefaultBanners,
   getHomeServices,
   getPopularCities,
 } from "@/lib/api";
 import HeroCollage from "@/components/HeroCollage";
 import { CityLink } from "@/components/CitySelection";
 import { getCategoryTemplates } from "@/lib/templates";
+import { assetUrl } from "@/lib/mappers";
 import { buildCityIndex, buildServiceIndex, popularCityIndex } from "@/lib/search-index";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TAGLINE, buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
@@ -40,13 +42,15 @@ const HOW_IT_WORKS = [
   },
 ];
 export default async function HomePage() {
-  const [categories, cities, templates, homeServices, listingCounts] = await Promise.all([
-    getCategories(),
-    getPopularCities(),
-    getCategoryTemplates(),
-    getHomeServices(),
-    getCategoryListingCounts(),
-  ]);
+  const [categories, cities, templates, homeServices, listingCounts, defaultBanners] =
+    await Promise.all([
+      getCategories(),
+      getPopularCities(),
+      getCategoryTemplates(),
+      getHomeServices(),
+      getCategoryListingCounts(),
+      getDefaultBanners(),
+    ]);
   /**
    * Hero banners: every level-one category the template library has artwork
    * for, in taxonomy order. Nothing is listed by hand, so the row follows the
@@ -73,11 +77,14 @@ export default async function HomePage() {
   );
   // The collage uses the three best-stocked categories, so the hero shows what
   // the site actually has rather than a hand-picked set.
-  const collagePhotos = [...services]
-    .filter((service) => service.photo)
-    .sort((a, b) => b.listings - a.listings)
+  // Hero artwork: the default category banners, which are stored at 1500px and
+  // up. The per-service photos are only 280x120 and looked soft blown up to
+  // tile size.
+  const collagePhotos = [...defaultBanners.values()]
+    .flat()
     .slice(0, 3)
-    .map((service) => ({ image: service.photo }));
+    .map((file) => assetUrl("banner_image", file))
+    .filter(Boolean);
   const popularServices = [...services]
     .filter((service) => service.listings > 0)
     .sort((a, b) => b.listings - a.listings)
@@ -196,7 +203,9 @@ export default async function HomePage() {
                   <span className="text-xs font-semibold text-ink-400">Step {i + 1}</span>
                 </div>
                 <h3 className="mt-3 text-[17px] font-medium">{step.title}</h3>
-                <p className="mt-1 text-[15.5px] leading-relaxed text-ink-500">{step.description}</p>
+                <p className="mt-1 text-[15.5px] leading-relaxed text-ink-500">
+                  {step.description}
+                </p>
               </li>
             ))}
           </ol>
